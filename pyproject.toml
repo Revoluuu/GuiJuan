@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guijuan"
+version = "0.3.0"
+description = "GuiJuan: a safe Windows organizer for research PDFs."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+  { name = "Revoluuu" }
+]
+dependencies = [
+  "PyPDF2>=3.0,<4",
+]
+
+[project.optional-dependencies]
+build = [
+  "PyInstaller>=6,<7",
+]
+
+[project.scripts]
+guijuan = "paper_folder.cli:main"
+guijuan-gui = "paper_folder.gui:main"
+paper-folder = "paper_folder.cli:main"
+paper-folder-gui = "paper_folder.gui:main"
+
+[tool.setuptools.packages.find]
+include = ["paper_folder*"]
