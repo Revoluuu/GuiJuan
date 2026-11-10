@@ -13,12 +13,16 @@ class CsvReviewTests(unittest.TestCase):
             root = Path(folder)
             paper = root / "paper.pdf"
             paper.touch()
-            item = PaperMetadata(paper, "A title", "An Author", "2024", "10.1/test", "complete")
+            item = PaperMetadata(
+                paper, "A title", "An Author", "2024", "10.1/test", "complete",
+                journal="A Journal",
+            )
             csv_path = root / "papers.csv"
             export_review_csv(csv_path, root, [item], build_rename_previews([item]))
             loaded = load_review_csv(csv_path, root)
             self.assertEqual(loaded[0].title, "A title")
             self.assertEqual(loaded[0].source, "review-csv")
+            self.assertEqual(loaded[0].journal, "A Journal")
 
     def test_rejects_path_outside_root(self):
         with tempfile.TemporaryDirectory() as folder:

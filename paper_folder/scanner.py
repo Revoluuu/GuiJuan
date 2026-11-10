@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from concurrent.futures import CancelledError
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Union
+from stat import S_ISREG
+from threading import Event
+from typing import List, Optional, Union
 
 
 @dataclass(frozen=True)
@@ -40,7 +43,7 @@ def format_file_size(size_bytes: int) -> str:
 
 
 def scan_pdf_files(
-    folder: Union[str, Path], *, recursive: bool = False
+    folder: Union[str, Path], *, recursive: bool = False, cancel: Optional[Event] = None,
 ) -> List[PdfFile]:
     """Scan *folder* for PDFs without modifying any files."""
     root = Path(folder).expanduser()
@@ -50,18 +53,16 @@ def scan_pdf_files(
         raise NotADirectoryError(f"Path is not a folder: {root}")
 
     candidates = root.rglob("*") if recursive else root.iterdir()
-    pdf_paths = (
-        path
-        for path in candidates
-        if path.is_file() and path.suffix.lower() == ".pdf"
-    )
-
-    results = [
-        PdfFile(
-            path=path,
-            relative_path=path.relative_to(root),
-            size_bytes=path.stat().st_size,
-        )
-        for path in pdf_paths
-    ]
+    results = []
+    for path in candidates:
+        if cancel is not None and cancel.is_set():
+            raise CancelledError
+        if path.suffix.lower() != ".pdf":
+            continue
+        try:
+            details = path.stat()
+        except FileNotFoundError:
+            continue
+        if S_ISREG(details.st_mode):
+            results.append(PdfFile(path, path.relative_to(root), details.st_size))
     return sorted(results, key=lambda item: str(item.relative_path).casefold())

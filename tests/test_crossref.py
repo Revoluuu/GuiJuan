@@ -17,9 +17,11 @@ class CrossrefTests(unittest.TestCase):
             "author": [{"given": "Ada", "family": "Lovelace"}],
             "published-print": {"date-parts": [[2020, 5, 1]]},
             "DOI": "10.1234/example",
+            "container-title": ["Nature Communications"],
         })
         self.assertEqual(record.authors, "Ada Lovelace")
         self.assertEqual(record.year, "2020")
+        self.assertEqual(record.journal, "Nature Communications")
 
     def test_verified_record_replaces_local_guesses(self):
         local = PaperMetadata(Path("paper.pdf"), "Bad title", "", "", "10.1234/example", "partial")
@@ -27,6 +29,12 @@ class CrossrefTests(unittest.TestCase):
         self.assertEqual(result.title, "Canonical title")
         self.assertEqual(result.status, "complete")
         self.assertEqual(result.source, "crossref")
+
+    def test_non_journal_container_is_not_a_journal(self):
+        record = record_from_message({
+            "type": "proceedings-article", "container-title": ["Conference proceedings"],
+        })
+        self.assertEqual(record.journal, "")
 
 
 if __name__ == "__main__":

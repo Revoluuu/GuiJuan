@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "guijuan"
-version = "0.3.0"
+version = "0.4.0"
 description = "GuiJuan: a safe Windows organizer for research PDFs."
 readme = "README.md"
 requires-python = ">=3.8"

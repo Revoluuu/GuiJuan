@@ -9,7 +9,7 @@ from .naming import RenamePreview
 
 
 FIELDS = (
-    "relative_path", "document_type", "title", "authors", "year", "doi", "status",
+    "relative_path", "document_type", "title", "authors", "year", "journal", "doi", "status",
     "suggested_name", "note",
 )
 
@@ -33,6 +33,7 @@ def export_review_csv(
                 "title": item.title,
                 "authors": item.authors,
                 "year": item.year,
+                "journal": item.journal,
                 "doi": item.doi,
                 "status": item.status,
                 "suggested_name": suggestions.get(item.path.resolve(), ""),
@@ -70,5 +71,6 @@ def load_review_csv(source: Union[str, Path], root: Path) -> List[PaperMetadata]
             items.append(PaperMetadata(
                 path, title, authors, year, doi, status, note, "review-csv",
                 document_type, row.get("suggested_name", "").strip(),
+                row.get("journal", "").strip(),
             ))
     return items
